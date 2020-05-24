@@ -19,7 +19,6 @@ import java.util.Scanner;
  Играем до тех пор, пока игрок не отгадает слово
  Используем только маленькие буквы
  */
-
 public class Homework {
     public static Scanner sc = new Scanner(System.in);
     public static void main(String[] args)
