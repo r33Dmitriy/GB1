@@ -1,5 +1,7 @@
 package ru.geekbrains.lesson3;
 
+import org.w3c.dom.ls.LSOutput;
+
 import java.util.Random;
 import java.util.Scanner;
 /**
@@ -10,117 +12,181 @@ import java.util.Scanner;
  */
 
 public class Homework {
+    public static char[][] map;
+    public static final int SIZE = 5;
+    public static int DOT_TO_WIN = 4;
+    public static final char DOT_EMPTY = '*';
+    public static final char DOT_X = 'X';
+    public static final char DOT_O = 'O';
     public static Scanner sc = new Scanner(System.in);
+    public static Random rand = new Random();
     public static void main(String[] args)
     {
-        System.out.println("Выберите игру:");
-        System.out.println("1. Угадай число");
-        System.out.println("2. Угадай слово");
-        int select = sc.nextInt();
-        switch (select)
+        System.out.println("КРЕСТИКИ НОЛИКИ");
+        initMap();
+        printMap();
+        while (true)
         {
-            case 1:
-                playGameGuessTheNumber();
+            doHumanTurn();
+            printMap();
+            if (checkWin(DOT_X))
+            {
+                System.out.println("Вы победили");
                 break;
-            case 2:
-                playGameGuessTheWord();
+            }
+            else if (isMapFull())
+            {
+                System.out.println("Игра закончилась ничьей");
                 break;
+            }
+            doAiTurn();
+            printMap();
+            if (checkWin(DOT_O))
+            {
+                System.out.println("Победил Искуственный Интелект");
+                break;
+            }
+            else if (isMapFull())
+            {
+                System.out.println("Игра закончилась ничьей");
+                break;
+            }
         }
-
+        System.out.println("Игра закончена");
     }
-
-    static void playGameGuessTheNumber()
+    public static void initMap()
     {
-        int maxCount = 3; // максимальное количество попыток, чтобы угадать число
-        int cont = 0; // номер попытки
-        Random rand = new Random();
-        int randNumber = rand.nextInt(10);
-        System.out.println("Загаданное число - " + randNumber); // для самопроверки
-        for (int i = 0; i < maxCount; i++)
+        map = new char[SIZE][SIZE];
+        for (int i = 0; i < map.length; i++)
         {
-            System.out.println("Угадайте число от 0 до 9");
-            int userNumber = sc.nextInt();
-            if (userNumber == randNumber)
+            for (int j = 0; j < map.length; j++)
             {
-                System.out.println("Победа! Вы угадали.");
-                break;
+                map[i][j] = DOT_EMPTY;
             }
-            else if (userNumber > randNumber)
-            {
-                System.out.println("Загаданное число меньше");
-            }
-            else
-            {
-                System.out.println("Загаданное число больше");
-            }
-        }
-        System.out.println("Повторить игру еще раз? 1 – да / 0 – нет");
-        int nextGame = sc.nextInt();
-        if (nextGame == 1)
-        {
-            playGameGuessTheNumber();
         }
     }
-    static void playGameGuessTheWord()
+    public static void printMap()
     {
-        String[] word = {"apple", "orange", "lemon", "banana", "apricot", "avocado", "broccoli", "carrot",
-                "cherry", "garlic", "grape", "melon", "leak", "kiwi", "mango", "mushroom", "nut", "olive",
-                "pea", "peanut", "pear", "pepper", "pineapple", "pumpkin", "potato"};
-        Random rand = new Random();
-        int randWordIndex = rand.nextInt(word.length);
-        String randWord = word[randWordIndex];
-        System.out.println("Загаданное слово - " + randWord); //вывод загаданного числа для проверки
-        char[] randWordArr = new char[15]; // массив для рандомно загаданного слова
-        char[] userWordArr = new char[15]; // массив для слова, введенного пользователем
-        for (int i = 0; i < randWordArr.length; i++)  //цикл заполнения массива randWordArr
+        for (int i = 0; i <= map.length; i++)
         {
-            if (i < randWord.length())
-            {
-                randWordArr[i] = randWord.charAt(i);
-            }
-            else
-            {
-                randWordArr[i] = '#';
-            }
+            System.out.print(i + " ");
         }
-        System.out.println("Угадайте какое слово загадано среди этих: ");
-        for (int i = 0; i < word.length; i++) //цикл вывода массива word(варианты для выбора слова игроку)
+        System.out.println();
+        for (int i = 0; i < map.length; i++)
         {
-            System.out.print(word[i] + ", ");
+            System.out.print((i + 1) + " ");
+            for (int j = 0; j < map.length; j++)
+            {
+                System.out.print(map[i][j] + " ");
+            }
+            System.out.println();
         }
-        System.out.println(); // переход на другую строчку после print
-        boolean exit = true; //условия выхода из цикла while. по умолчанию true
-        do
+    }
+    public static void doHumanTurn()
+    {
+        int x,y;
+        do {
+            System.out.println("Введите координаты в формате X Y");
+            x = sc.nextInt() - 1;
+            y = sc.nextInt() - 1;
+        } while (!isCellValid(x,y));
+            map[y][x] = DOT_X;
+    }
+    public static boolean isCellValid(int x, int y)
+    {
+        if (x < 0 || x >=SIZE || y < 0 || y >= SIZE) return false;
+        if (map[y][x] == DOT_EMPTY) return true;
+        return false;
+    }
+    public static void doAiTurn()
+    {
+        int x, y;
+        do{
+            x = rand.nextInt(SIZE);
+            y = rand.nextInt(SIZE);
+        } while (!isCellValid(x,y));
+        System.out.println("Компьютер походил в точку " + (x + 1) + " " + (y + 1));
+        map[y][x] = DOT_O;
+    }
+    public static boolean checkWin ( char symb ) {
+        int countX, countY, countD, countRD; //счетчик совпадений
+        countD = 0; //счетчик совпадений по диагонали
+        countRD = 0; //счетчик совпадений по обратной диагонали
+        for (int i = 0; i < map.length; i++)
         {
-            int ex = 0; //метка не изменения массива userWordArr
-            Scanner scanner = new Scanner(System.in);
-            String userWord = scanner.nextLine(); //читаем введенное пользователем слово
-            for (int i = 0; i < userWordArr.length; i++) //заполняем массив пользователя
+            countX = 0; //счетчик совпадений по строкам
+            countY = 0; //счетчик совпадений по столбцам
+            for (int j = 0; j < map.length; j++)
             {
-                if (i < userWord.length())
+                if (map[i][j] == symb)
                 {
-                    userWordArr[i] = userWord.charAt(i);
+                    countX++;
+                    if (countX == DOT_TO_WIN) return true;
                 }
-                else
+                else countX = 0; //скидываем счетчик, если не подряд
+                if (map[j][i] == symb)
                 {
-                    userWordArr[i] = '#';
+                    countY++;
+                    if (countY == DOT_TO_WIN) return true;
                 }
+                else countY = 0; //скидываем счетчик, если не подряд
             }
-            for (int i = 0; i < userWordArr.length; i++) //цикл сравнения массивов
+            if (map[i][i] == symb) //проверки диагонали
             {
-                if (userWordArr[i] != randWordArr[i])
-                {
-                    userWordArr[i] = '#';
-                    ex = 1; //если меняем ex, значит слово не угадали целиком
-                }
-                else if ((userWordArr[i] == '#') && (ex == 0))
-                {
-                    exit = false;
-                }
+                countD++;
+                if (countD == DOT_TO_WIN) return true;
             }
-            System.out.println(userWordArr);
-        } while (exit);
-        System.out.println("Вы угадали");
+            else countD = 0; //скидываем счетчик, если не подряд
+            if (map[i][map.length - i - 1] == symb) //проверка обратной диагонали
+            {
+                countRD++;
+                if (countRD == DOT_TO_WIN) return true;
+            }
+            else countRD = 0; //скидываем счетчик, если не подряд
+        }
+        countD = 0; //счетчик совпадений по диагонали
+        countRD = 0; //счетчик совпадений по диагонали
+        for (int i = 0; i < 4 ; i++) //цикл проверки малых диагоналей
+        {
+            if (map[i][i + 1] == symb)
+                {
+                    countD++;
+                    if (countD == DOT_TO_WIN) return true;
+                }
+                else countD = 0; //скидываем счетчик, если не подряд
+                if (map[i + 1][i] == symb)
+                {
+                    countRD++;
+                    if (countRD == DOT_TO_WIN) return true;
+                }
+                else countRD = 0; //скидываем счетчик, если не подряд
+
+        }
+        countD = 0; //счетчик совпадений по диагонали
+        countRD = 0; //счетчик совпадений по диагонали
+        for (int i = 0; i < 4 ; i++) //цикл проверки малых обратных диагоналей
+        {
+            if (map[i][map.length - i - 2] == symb) {
+                countD++;
+                if (countD == DOT_TO_WIN) return true;
+            } else countD = 0; //скидываем счетчик, если не подряд
+            if (map[i+1][map.length - i -1] == symb) {
+                countRD++;
+                if (countRD == DOT_TO_WIN) return true;
+            } else countRD = 0; //скидываем счетчик, если не подряд
+        }
+        return false ;
     }
 
+    public static boolean isMapFull()
+    {
+        for (int i = 0; i < map.length; i++)
+        {
+            for (int j = 0; j < map.length; j++)
+            {
+                if (map[i][j] == DOT_EMPTY) return false;
+            }
+        }
+        return true;
+    }
 }
