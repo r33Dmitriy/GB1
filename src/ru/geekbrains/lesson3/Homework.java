@@ -1,137 +1,48 @@
 package ru.geekbrains.lesson3;
 
+import org.w3c.dom.ls.LSOutput;
+
 import java.util.Random;
-import java.util.Scanner;
+
 /**
- 1. Написать программу, которая загадывает случайное число от 0 до 9,
- и пользователю дается 3 попытки угадать это число.
- При каждой попытке компьютер должен сообщить больше ли указанное пользователем число чем загаданное, или меньше.
- После победы или проигрыша выводится запрос – «Повторить игру еще раз? 1 – да / 0 – нет»(1 – повторить, 0 – нет).
- 2 * Создать массив из слов String[] words = {"apple", "orange", "lemon", "banana", "apricot", "avocado", "broccoli", "carrot", "cherry", "garlic", "grape", "melon", "leak", "kiwi", "mango", "mushroom", "nut", "olive", "pea", "peanut", "pear", "pepper", "pineapple", "pumpkin", "potato"};
- При запуске программы компьютер загадывает слово, запрашивает ответ у пользователя,
- сравнивает его с загаданным словом и сообщает правильно ли ответил пользователь. Если слово не угадано, компьютер показывает буквы которые стоят на своих местах.
- apple – загаданное
- apricot - ответ игрока
- ap############# (15 символов, чтобы пользователь не мог узнать длину слова)
- Для сравнения двух слов посимвольно, можно пользоваться:
- String str = "apple";
- str.charAt(0); - метод, вернет char, который стоит в слове str на первой позиции
- Играем до тех пор, пока игрок не отгадает слово
- Используем только маленькие буквы
+ 1. Расширить задачу про котов и тарелки с едой
+ 2. Сделать так, чтобы в тарелке с едой не могло получиться отрицательного количества еды (например, в миске 10 еды, а кот пытается покушать 15-20)
+ 3. Каждому коту нужно добавить поле сытость (когда создаем котов, они голодны). Если коту удалось покушать (хватило еды), сытость = true
+ 4. Считаем, что если коту мало еды в тарелке, то он ее просто не трогает, то есть не может быть наполовину сыт (это сделано для упрощения логики программы)
+ 5. Создать массив котов и тарелку с едой, попросить всех котов покушать из этой тарелки и потом вывести информацию о сытости котов в консоль
+ 6. Добавить в тарелку метод, с помощью которого можно было бы добавлять еду в тарелку
  */
 
-public class Homework {
-    public static Scanner sc = new Scanner(System.in);
+public class Homework
+{
+
     public static void main(String[] args)
     {
-        System.out.println("Выберите игру:");
-        System.out.println("1. Угадай число");
-        System.out.println("2. Угадай слово");
-        int select = sc.nextInt();
-        switch (select)
+        Cat cat = new Cat("Sonya", 5);
+        Pipkin pipkin = new Pipkin(20);
+        pipkin.info(); // инфо по миске в начале
+        cat.eat(pipkin); // кормим кошку
+        pipkin.info(); // смотрим сколько осталось в миске
+        cat.eat(pipkin); // пытаемся покормить сытую кошку
+        pipkin.info(); //проверяем, что корм не пропал
+        pipkin.pourFood(10); // насыпаем корма в миску
+        Cat[] cats = new Cat[5]; //создаем массив котов
+        cats[0] = new Cat("Silka", 5);
+        cats[1] = new Cat("Rosa", 3);
+        cats[2] = new Cat("Masya", 7);
+        cats[3] = new Cat("Milla", 12);
+        cats[4] = new Cat("Elya", 9);
+        System.out.println("Кормим кошек");
+        for (int i = 0; i < cats.length; i++) //кормим кошек через цикл
         {
-            case 1:
-                playGameGuessTheNumber();
-                break;
-            case 2:
-                playGameGuessTheWord();
-                break;
+            cats[i].eat(pipkin);
         }
-
-    }
-
-    static void playGameGuessTheNumber()
-    {
-        int maxCount = 3; // максимальное количество попыток, чтобы угадать число
-        int cont = 0; // номер попытки
-        Random rand = new Random();
-        int randNumber = rand.nextInt(10);
-        System.out.println("Загаданное число - " + randNumber); // для самопроверки
-        for (int i = 0; i < maxCount; i++)
+        System.out.println("Насыпаем корма в миску и снова кормим кошек");
+        pipkin.pourFood(20);
+        for (int i = 0; i < cats.length; i++) //кормим кошек через цикл
         {
-            System.out.println("Угадайте число от 0 до 9");
-            int userNumber = sc.nextInt();
-            if (userNumber == randNumber)
-            {
-                System.out.println("Победа! Вы угадали.");
-                break;
-            }
-            else if (userNumber > randNumber)
-            {
-                System.out.println("Загаданное число меньше");
-            }
-            else
-            {
-                System.out.println("Загаданное число больше");
-            }
+            cats[i].eat(pipkin);
         }
-        System.out.println("Повторить игру еще раз? 1 – да / 0 – нет");
-        int nextGame = sc.nextInt();
-        if (nextGame == 1)
-        {
-            playGameGuessTheNumber();
-        }
-    }
-    static void playGameGuessTheWord()
-    {
-        String[] word = {"apple", "orange", "lemon", "banana", "apricot", "avocado", "broccoli", "carrot",
-                "cherry", "garlic", "grape", "melon", "leak", "kiwi", "mango", "mushroom", "nut", "olive",
-                "pea", "peanut", "pear", "pepper", "pineapple", "pumpkin", "potato"};
-        Random rand = new Random();
-        int randWordIndex = rand.nextInt(word.length);
-        String randWord = word[randWordIndex];
-        System.out.println("Загаданное слово - " + randWord); //вывод загаданного числа для проверки
-        char[] randWordArr = new char[15]; // массив для рандомно загаданного слова
-        char[] userWordArr = new char[15]; // массив для слова, введенного пользователем
-        for (int i = 0; i < randWordArr.length; i++)  //цикл заполнения массива randWordArr
-        {
-            if (i < randWord.length())
-            {
-                randWordArr[i] = randWord.charAt(i);
-            }
-            else
-            {
-                randWordArr[i] = '#';
-            }
-        }
-        System.out.println("Угадайте какое слово загадано среди этих: ");
-        for (int i = 0; i < word.length; i++) //цикл вывода массива word(варианты для выбора слова игроку)
-        {
-            System.out.print(word[i] + ", ");
-        }
-        System.out.println(); // переход на другую строчку после print
-        boolean exit = true; //условия выхода из цикла while. по умолчанию true
-        do
-        {
-            int ex = 0; //метка не изменения массива userWordArr
-            Scanner scanner = new Scanner(System.in);
-            String userWord = scanner.nextLine(); //читаем введенное пользователем слово
-            for (int i = 0; i < userWordArr.length; i++) //заполняем массив пользователя
-            {
-                if (i < userWord.length())
-                {
-                    userWordArr[i] = userWord.charAt(i);
-                }
-                else
-                {
-                    userWordArr[i] = '#';
-                }
-            }
-            for (int i = 0; i < userWordArr.length; i++) //цикл сравнения массивов
-            {
-                if (userWordArr[i] != randWordArr[i])
-                {
-                    userWordArr[i] = '#';
-                    ex = 1; //если меняем ex, значит слово не угадали целиком
-                }
-                else if ((userWordArr[i] == '#') && (ex == 0))
-                {
-                    exit = false;
-                }
-            }
-            System.out.println(userWordArr);
-        } while (exit);
-        System.out.println("Вы угадали");
     }
 
 }
