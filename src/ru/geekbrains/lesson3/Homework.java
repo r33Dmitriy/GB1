@@ -1,5 +1,7 @@
 package ru.geekbrains.lesson3;
 
+import javax.swing.*;
+
 /**
 
  */
@@ -7,6 +9,7 @@ package ru.geekbrains.lesson3;
 public class Homework {
     public static void main(String[] args)
     {
+        new MyWindow();
 
     }
 }
